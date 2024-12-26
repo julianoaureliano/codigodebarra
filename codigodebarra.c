@@ -12,11 +12,75 @@
 #include <math.h>
 #include <string.h>
 
-// separar cada digito por digito em um vetor para comparar com as tabelas dos valores
+void colocar_espacamento_lateral(int *espacamento_lateral, int *todososdigitos, int *index_digitos)
+{
+    for (int i = 0; i < *espacamento_lateral; i++)
+    {
+        todososdigitos[*index_digitos] = 0;
+        (*index_digitos)++;
+    }
+}
+
+void processar_digitos_codigo_de_barra(int *todososdigitos, int *index_digitos, char *Lcode[], char *Rcode[], int digitos[])
+{
+    // "101" inicial
+    todososdigitos[*index_digitos] = 1;
+    (*index_digitos)++;
+    todososdigitos[*index_digitos] = 0;
+    (*index_digitos)++;
+    todososdigitos[*index_digitos] = 1;
+    (*index_digitos)++;
+
+    // processa os 8 dígitos do código de barras
+    for (int i = 0; i < 8; i++)
+    {
+        if (i < 4)
+        {
+            // lado esquerdo usa Lcode
+            for (int j = 0; j < 7; j++)
+            {
+                todososdigitos[*index_digitos] = Lcode[digitos[i]][j] - '0'; // guarda cada dígito do Lcode convertendo de string para int
+                (*index_digitos)++;
+            }
+        }
+        else
+        {
+            if (i == 4)
+            {
+                // "01010" no meio
+                todososdigitos[*index_digitos] = 0;
+                (*index_digitos)++;
+                todososdigitos[*index_digitos] = 1;
+                (*index_digitos)++;
+                todososdigitos[*index_digitos] = 0;
+                (*index_digitos)++;
+                todososdigitos[*index_digitos] = 1;
+                (*index_digitos)++;
+                todososdigitos[*index_digitos] = 0;
+                (*index_digitos)++;
+            }
+
+            // lado direito usa Rcode
+            for (int j = 0; j < 7; j++)
+            {
+                todososdigitos[*index_digitos] = Rcode[digitos[i]][j] - '0'; // guarda cada dígito do Rcode convertendo de string para int
+                (*index_digitos)++;
+            }
+        }
+    }
+
+    // "101" final
+    todososdigitos[*index_digitos] = 1;
+    (*index_digitos)++;
+    todososdigitos[*index_digitos] = 0;
+    (*index_digitos)++;
+    todososdigitos[*index_digitos] = 1;
+    (*index_digitos)++;
+}
 
 int main()
 {
-    // Armazenando os valores binários como strings
+    // tabela Lcode e Rcode
     char *Rcode[10] = {
         "1110010", "1100110", "1101100", "1000010",
         "1011100", "1001110", "1010000", "1000100",
@@ -27,39 +91,63 @@ int main()
         "0110111", "0001011"};
 
     int digitos[8];
-
-    char numero[9];
+    int todososdigitos[200];
+    int index_digitos = 0;
+    int espacamento_lateral;
+    char numero_codigo_de_barra[9];
 
     printf("Digite um número: ");
-    scanf("%8s", numero);
-    if (strlen(numero) != 8)
+    scanf("%8s", numero_codigo_de_barra);
+
+    if (strlen(numero_codigo_de_barra) != 8)
     {
-        printf("O numero nao tem 8 digitos");
+        printf("O número do código de barras não tem 8 dígitos\n");
         return 1;
     }
+
+    printf("Digite o espaçamento lateral: ");
+    scanf("%d", &espacamento_lateral);
+
+    colocar_espacamento_lateral(&espacamento_lateral, todososdigitos, &index_digitos);
+
     for (int i = 0; i < 8; i++)
     {
-        digitos[i] = numero[i] - '0'; // converte string para numero e guarda no vetor
+        digitos[i] = numero_codigo_de_barra[i] - '0'; // converte a string para int
     }
 
-    printf("101 ");
+    processar_digitos_codigo_de_barra(todososdigitos, &index_digitos, Lcode, Rcode, digitos);
 
-    for (int i = 0; i < 9; i++)
+    colocar_espacamento_lateral(&espacamento_lateral, todososdigitos, &index_digitos);
+
+    int pixel = 3;
+    int pixels_tratados[1000];
+    pixel--;
+
+    int index_dos_pixels_tratados = 0;
+
+    printf("Dígitos do código de barras: ");
+    for (int i = 0; i < index_digitos; i++)
     {
-        if (i < 4)
+        // começa a multiplicar os pixels depos do espaçamento lateral esquerdo e antes do direito
+        if (i >= (espacamento_lateral) && i < ((index_digitos) - (espacamento_lateral)))
         {
-            printf("%s ", Lcode[digitos[i]]);
-        }
-        if (i >= 4)
-        {
-            if (i == 4)
+            for (int j = 0; j < pixel; j++)
             {
-                printf("01010 ");
+                printf("%d", todososdigitos[i]);
+                pixels_tratados[index_dos_pixels_tratados++] = todososdigitos[i];
             }
-            printf("%s ", Rcode[digitos[i]]);
         }
+        printf("%d", todososdigitos[i]);
+        pixels_tratados[index_dos_pixels_tratados++] = todososdigitos[i];
     }
-    printf("101 ");
+    printf("\nTotal de dígitos: %d\n", index_digitos);
+
+    printf("Dígitos do código de barras duplicado: ");
+    for (int i = 0; i < index_dos_pixels_tratados; i++)
+    {
+        printf("%d", pixels_tratados[i]);
+    }
+    printf("\nTamanho total da linha: %d\n", index_dos_pixels_tratados);
 
     return 0;
 }
