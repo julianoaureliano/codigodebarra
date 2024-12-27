@@ -95,6 +95,7 @@ int main()
     int index_digitos = 0;
     int espacamento_lateral;
     char numero_codigo_de_barra[9];
+    int altura_dos_pixels;
 
     printf("Digite um número: ");
     scanf("%8s", numero_codigo_de_barra);
@@ -107,6 +108,9 @@ int main()
 
     printf("Digite o espaçamento lateral: ");
     scanf("%d", &espacamento_lateral);
+
+    printf("Digite a altura dos pixels: ");
+    scanf("%d", &altura_dos_pixels);
 
     colocar_espacamento_lateral(&espacamento_lateral, todososdigitos, &index_digitos);
 
@@ -121,33 +125,55 @@ int main()
 
     int pixel = 3;
     int pixels_tratados[1000];
-    pixel--;
+    char alteracao_pixel[1];
+    // pixel--;
+
+    printf("Deseja alterar o padrao dos pixels? (Padrao eh 3) y ou n : ");
+    scanf("%1s", alteracao_pixel);
+    if (alteracao_pixel[0] == 'y')
+    {
+        printf("Diga o padrao dos pixels: ");
+        scanf("%d", &pixel);
+    }
 
     int index_dos_pixels_tratados = 0;
 
-    printf("Dígitos do código de barras: ");
+    // printf("Dígitos do código de barras: ");
     for (int i = 0; i < index_digitos; i++)
     {
-        // começa a multiplicar os pixels depos do espaçamento lateral esquerdo e antes do direito
+        // começa a multiplicar os pixels depos do espaçamento lateral esquerdo e antes do direito e guardando num novo vetor
         if (i >= (espacamento_lateral) && i < ((index_digitos) - (espacamento_lateral)))
         {
-            for (int j = 0; j < pixel; j++)
+            for (int j = 1; j < pixel; j++)
             {
-                printf("%d", todososdigitos[i]);
+                // printf("%d", todososdigitos[i]);
                 pixels_tratados[index_dos_pixels_tratados++] = todososdigitos[i];
             }
         }
-        printf("%d", todososdigitos[i]);
+        /// printf("%d", todososdigitos[i]);
         pixels_tratados[index_dos_pixels_tratados++] = todososdigitos[i];
     }
-    printf("\nTotal de dígitos: %d\n", index_digitos);
+    // printf("\nTotal de dígitos: %d\n", index_digitos);
 
-    printf("Dígitos do código de barras duplicado: ");
-    for (int i = 0; i < index_dos_pixels_tratados; i++)
+    printf("linha e altura: %d %d\n", index_dos_pixels_tratados, (altura_dos_pixels + (espacamento_lateral * 2)));
+
+    printf("Dígitos do código de barras duplicado: \n");
+
+    for (int j = 0; j < (altura_dos_pixels + (espacamento_lateral * 2)); j++)
     {
-        printf("%d", pixels_tratados[i]);
+        for (int i = 0; i < index_dos_pixels_tratados; i++)
+        {
+            if (j < espacamento_lateral || j >= (altura_dos_pixels + espacamento_lateral))
+            {
+                printf("%d", pixels_tratados[i] * 0);
+            }
+            else
+            {
+                printf("%d", pixels_tratados[i]);
+            }
+        }
+        printf("\n");
     }
-    printf("\nTamanho total da linha: %d\n", index_dos_pixels_tratados);
 
     return 0;
 }
