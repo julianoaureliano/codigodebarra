@@ -2,6 +2,7 @@
 // executa o arquivo : ./nomedoarquivo
 // executa o arquivo com entradas : ./nomedoarquivo < entrada.txt
 // executa o arquivo com entradas e saida: ./nomedoarquivo < entrada > saida
+// (Git) git remote -v = para ver qual link do repositorio está linkado
 // (Git) git status = para ver as atualizaçoes e mudancas dos arquivos
 // *salve o arquivo antes*(Git) git add . = para carregar todos os arquivos para o commit
 // (Git) git commit -m "colocarmensagem" = carregar os arquivos para enviar com a mensagem
