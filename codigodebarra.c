@@ -13,35 +13,59 @@
 #include <math.h>
 #include <string.h>
 
-void colocar_espacamento_lateral(int *espacamento_lateral, int *todososdigitos, int *index_digitos)
+// adcicionando as structs
+typedef struct
 {
-    for (int i = 0; i < *espacamento_lateral; i++)
+    char *Lcode[10];
+    char *Rcode[10];
+} CodigoBarraTabela;
+
+typedef struct
+{
+    int espacamento_lateral;
+    int altura_dos_pixels;
+    char numero_codigo_de_barra[9];
+    int digitos[8];
+} ConfiguracaoCodigoBarra;
+
+typedef struct
+{
+    int todos_os_digitos[200];
+    int index_digitos;
+    int pixels_tratados[1000];
+    int index_pixels_tratados;
+} CodigoBarraDados;
+
+// adiciona os 0 do espaçamento lateral
+void colocar_espacamento_lateral(int espacamento_lateral, CodigoBarraDados *dados)
+{
+    for (int i = 0; i < espacamento_lateral; i++)
     {
-        todososdigitos[*index_digitos] = 0;
-        (*index_digitos)++;
+        dados->todos_os_digitos[dados->index_digitos] = 0;
+        dados->index_digitos++;
     }
 }
 
-void processar_digitos_codigo_de_barra(int *todososdigitos, int *index_digitos, char *Lcode[], char *Rcode[], int digitos[])
+void processar_digitos_codigo_de_barra(CodigoBarraTabela *tabela, CodigoBarraDados *dados, ConfiguracaoCodigoBarra *config)
 {
     // "101" inicial
-    todososdigitos[*index_digitos] = 1;
-    (*index_digitos)++;
-    todososdigitos[*index_digitos] = 0;
-    (*index_digitos)++;
-    todososdigitos[*index_digitos] = 1;
-    (*index_digitos)++;
+    dados->todos_os_digitos[dados->index_digitos] = 1;
+    dados->index_digitos++;
+    dados->todos_os_digitos[dados->index_digitos] = 0;
+    dados->index_digitos++;
+    dados->todos_os_digitos[dados->index_digitos] = 1;
+    dados->index_digitos++;
 
-    // processa os 8 dígitos do código de barras
+    // Processa os 8 dígitos do código de barras
     for (int i = 0; i < 8; i++)
     {
         if (i < 4)
         {
-            // lado esquerdo usa Lcode
+            // Lado esquerdo usa Lcode
             for (int j = 0; j < 7; j++)
             {
-                todososdigitos[*index_digitos] = Lcode[digitos[i]][j] - '0'; // guarda cada dígito do Lcode convertendo de string para int
-                (*index_digitos)++;
+                dados->todos_os_digitos[dados->index_digitos] = tabela->Lcode[config->digitos[i]][j] - '0';
+                dados->index_digitos++;
             }
         }
         else
@@ -49,128 +73,117 @@ void processar_digitos_codigo_de_barra(int *todososdigitos, int *index_digitos, 
             if (i == 4)
             {
                 // "01010" no meio
-                todososdigitos[*index_digitos] = 0;
-                (*index_digitos)++;
-                todososdigitos[*index_digitos] = 1;
-                (*index_digitos)++;
-                todososdigitos[*index_digitos] = 0;
-                (*index_digitos)++;
-                todososdigitos[*index_digitos] = 1;
-                (*index_digitos)++;
-                todososdigitos[*index_digitos] = 0;
-                (*index_digitos)++;
+                int meio[] = {0, 1, 0, 1, 0};
+                for (int j = 0; j < 5; j++)
+                {
+                    dados->todos_os_digitos[dados->index_digitos] = meio[j];
+                    dados->index_digitos++;
+                }
             }
-
-            // lado direito usa Rcode
+            // Lado direito usa Rcode
             for (int j = 0; j < 7; j++)
             {
-                todososdigitos[*index_digitos] = Rcode[digitos[i]][j] - '0'; // guarda cada dígito do Rcode convertendo de string para int
-                (*index_digitos)++;
+                dados->todos_os_digitos[dados->index_digitos] = tabela->Rcode[config->digitos[i]][j] - '0';
+                dados->index_digitos++;
             }
         }
     }
 
     // "101" final
-    todososdigitos[*index_digitos] = 1;
-    (*index_digitos)++;
-    todososdigitos[*index_digitos] = 0;
-    (*index_digitos)++;
-    todososdigitos[*index_digitos] = 1;
-    (*index_digitos)++;
+    dados->todos_os_digitos[dados->index_digitos] = 1;
+    dados->index_digitos++;
+    dados->todos_os_digitos[dados->index_digitos] = 0;
+    dados->index_digitos++;
+    dados->todos_os_digitos[dados->index_digitos] = 1;
+    dados->index_digitos++;
 }
 
 int main()
 {
-    // tabela Lcode e Rcode
-    char *Rcode[10] = {
-        "1110010", "1100110", "1101100", "1000010",
-        "1011100", "1001110", "1010000", "1000100",
-        "1001000", "1110100"};
-    char *Lcode[10] = {
-        "0001101", "0011001", "0010011", "0111101",
-        "0100011", "0110001", "0101111", "0111011",
-        "0110111", "0001011"};
+    // Inicialização das tabelas
+    CodigoBarraTabela tabela = {
+        .Lcode = {"0001101", "0011001", "0010011", "0111101", "0100011", "0110001", "0101111", "0111011", "0110111", "0001011"},
+        .Rcode = {"1110010", "1100110", "1101100", "1000010", "1011100", "1001110", "1010000", "1000100", "1001000", "1110100"}};
 
-    int digitos[8];
-    int todososdigitos[200];
-    int index_digitos = 0;
-    int espacamento_lateral;
-    char numero_codigo_de_barra[9];
-    int altura_dos_pixels;
+    // Inicialização da configuração
+    ConfiguracaoCodigoBarra config;
+    CodigoBarraDados dados = {.index_digitos = 0, .index_pixels_tratados = 0};
 
     printf("Digite um número: ");
-    scanf("%8s", numero_codigo_de_barra);
+    scanf("%8s", config.numero_codigo_de_barra);
 
-    if (strlen(numero_codigo_de_barra) != 8)
+    if (strlen(config.numero_codigo_de_barra) != 8)
     {
         printf("O número do código de barras não tem 8 dígitos\n");
         return 1;
     }
 
     printf("Digite o espaçamento lateral: ");
-    scanf("%d", &espacamento_lateral);
+    scanf("%d", &config.espacamento_lateral);
 
     printf("Digite a altura dos pixels: ");
-    scanf("%d", &altura_dos_pixels);
+    scanf("%d", &config.altura_dos_pixels);
 
-    colocar_espacamento_lateral(&espacamento_lateral, todososdigitos, &index_digitos);
+    colocar_espacamento_lateral(config.espacamento_lateral, &dados);
 
     for (int i = 0; i < 8; i++)
     {
-        digitos[i] = numero_codigo_de_barra[i] - '0'; // converte a string para int
+        config.digitos[i] = config.numero_codigo_de_barra[i] - '0'; // converte a string para int
     }
 
-    processar_digitos_codigo_de_barra(todososdigitos, &index_digitos, Lcode, Rcode, digitos);
+    processar_digitos_codigo_de_barra(&tabela, &dados, &config);
 
-    colocar_espacamento_lateral(&espacamento_lateral, todososdigitos, &index_digitos);
+    colocar_espacamento_lateral(config.espacamento_lateral, &dados);
 
-    int pixel = 3;
-    int pixels_tratados[1000];
-    char alteracao_pixel[1];
-    // pixel--;
+    int pixel = 3; // valor padrao
+    char alteracao_pixel[2];
 
-    printf("Deseja alterar o padrao dos pixels? (Padrao eh 3) y ou n : ");
+    printf("Deseja alterar o padrão dos pixels? (Padrão eh 3) y ou n : ");
     scanf("%1s", alteracao_pixel);
     if (alteracao_pixel[0] == 'y')
     {
-        printf("Diga o padrao dos pixels: ");
+        printf("Diga o padrão dos pixels: ");
         scanf("%d", &pixel);
+        if (pixel < 1) // garatir o pixel valido
+        {
+            printf("O valor do padrão de pixels deve ser maior ou igual a 1. Usando o padrão 3.\n");
+            pixel = 3;
+        }
     }
 
-    int index_dos_pixels_tratados = 0;
+    printf("Valor final de pixel: %d\n", pixel);
 
-    // printf("Dígitos do código de barras: ");
-    for (int i = 0; i < index_digitos; i++)
+    for (int i = 0; i < dados.index_digitos; i++)
     {
-        // começa a multiplicar os pixels depos do espaçamento lateral esquerdo e antes do direito e guardando num novo vetor
-        if (i >= (espacamento_lateral) && i < ((index_digitos) - (espacamento_lateral)))
+        // começa a multiplicar os pixels depos do espaçamento lateral esquerdo e antes do direito. E guardando num novo vetor
+        if (i >= (config.espacamento_lateral) && i < ((dados.index_digitos) - (config.espacamento_lateral)))
         {
             for (int j = 1; j < pixel; j++)
             {
-                // printf("%d", todososdigitos[i]);
-                pixels_tratados[index_dos_pixels_tratados++] = todososdigitos[i];
+                dados.pixels_tratados[dados.index_pixels_tratados] = dados.todos_os_digitos[i];
+                dados.index_pixels_tratados++;
             }
         }
-        /// printf("%d", todososdigitos[i]);
-        pixels_tratados[index_dos_pixels_tratados++] = todososdigitos[i];
+        dados.pixels_tratados[dados.index_pixels_tratados] = dados.todos_os_digitos[i];
+        dados.index_pixels_tratados++;
     }
-    // printf("\nTotal de dígitos: %d\n", index_digitos);
 
-    printf("linha e altura: %d %d\n", index_dos_pixels_tratados, (altura_dos_pixels + (espacamento_lateral * 2)));
+    printf("Linha e altura: %d %d\n", dados.index_pixels_tratados, (config.altura_dos_pixels + (config.espacamento_lateral * 2)));
 
     printf("Dígitos do código de barras duplicado: \n");
 
-    for (int j = 0; j < (altura_dos_pixels + (espacamento_lateral * 2)); j++)
+    for (int j = 0; j < (config.altura_dos_pixels + (config.espacamento_lateral * 2)); j++)
     {
-        for (int i = 0; i < index_dos_pixels_tratados; i++)
+        for (int i = 0; i < dados.index_pixels_tratados; i++)
         {
-            if (j < espacamento_lateral || j >= (altura_dos_pixels + espacamento_lateral))
+            // faz as linhas de 0 pela quantidade do espaçamento lateral
+            if (j < config.espacamento_lateral || j >= (config.altura_dos_pixels + config.espacamento_lateral))
             {
-                printf("%d", pixels_tratados[i] * 0);
+                printf("%d", dados.pixels_tratados[i] * 0);
             }
             else
             {
-                printf("%d", pixels_tratados[i]);
+                printf("%d", dados.pixels_tratados[i]);
             }
         }
         printf("\n");
