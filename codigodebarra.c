@@ -168,7 +168,16 @@ int main()
         dados.index_pixels_tratados++;
     }
 
-    printf("Linha e altura: %d %d\n", dados.index_pixels_tratados, (config.altura_dos_pixels + (config.espacamento_lateral * 2)));
+    FILE *arquivo = fopen("codigo_de_barras.pbm", "w");
+    if (!arquivo)
+    {
+        perror("Erro ao criar o arquivo");
+        return 1;
+    }
+
+    fprintf(arquivo, "P1\n");
+    fprintf(arquivo, "%d %d\n", dados.index_pixels_tratados, config.altura_dos_pixels + (config.espacamento_lateral * 2));
+
     // imprime o codigo de barra completo com todas as linhas
     for (int j = 0; j < (config.altura_dos_pixels + (config.espacamento_lateral * 2)); j++)
     {
@@ -177,15 +186,17 @@ int main()
             // faz as linhas de 0 pela quantidade do espaçamento lateral
             if (j < config.espacamento_lateral || j >= (config.altura_dos_pixels + config.espacamento_lateral))
             {
-                printf("%d", 0);
+                fprintf(arquivo, "0 ");
             }
             else
             {
-                printf("%d", dados.pixels_tratados[i]);
+                fprintf(arquivo, "%d ", dados.pixels_tratados[i]);
             }
         }
-        printf("\n");
+        fprintf(arquivo, "\n");
     }
 
+    fclose(arquivo);
+    printf("Arquivo PBM gerado com sucesso: codigo_de_barras.pbm\n");
     return 0;
 }
