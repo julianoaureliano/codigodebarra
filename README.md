@@ -1,4 +1,4 @@
-# codigodebarra
+# Código de barra - EAN-8
 # 📦 Leitor de Código de Barras PBM
 
 Este projeto é um programa em C que cria um arquivo PBM contendo a imagem de um código de barras. Ele utiliza tabelas de conversão (`Lcode` e `Rcode`) baseadas no padrão EAN-8 para interpretar os padrões binários. 
