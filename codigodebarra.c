@@ -2,41 +2,36 @@
 // executa o arquivo : ./nomedoarquivo
 // executa o arquivo com entradas : ./nomedoarquivo < entrada.txt
 // executa o arquivo com entradas e saida: ./nomedoarquivo < entrada > saida
-// (Git) git remote -v = para ver qual link do repositorio est√° linkado
-// (Git) git status = para ver as atualiza√ßoes e mudancas dos arquivos
+// (Git) git remote -v = para ver qual link do repositorio est· linkado
+// (Git) git status = para ver as atualizaÁoes e mudancas dos arquivos
 // *salve o arquivo antes*(Git) git add . = para carregar todos os arquivos para o commit
 // (Git) git commit -m "colocarmensagem" = carregar os arquivos para enviar com a mensagem
 // (Git) git push origin main = enviar os arquivos atualizados
-// (Git) git fetch = "sincroniza" os repositorios, para saber se tem alguma atualiza√ß√£o no repositorio
+// (Git) git fetch = "sincroniza" os repositorios, para saber se tem alguma atualizaÁ„o no repositorio
 // (Git) git pull origin main = para baixar/atualizar os arquivos locais com o do repositorio do github
 #include <stdio.h>
-#include <math.h>
 #include <string.h>
+#include "codigo_barras.h"
+#include <locale.h>
 
-// adcicionando as structs
-typedef struct
+int calcular_digito_verificador(int *digitos)
 {
-    char *Lcode[10];
-    char *Rcode[10];
-} CodigoBarraTabela;
+    int soma = 0;
+    for (int i = 0; i < 7; i++)
+    {
+        if (i % 2 == 0)
+        {
+            soma += digitos[i] * 3; // indice impar multiplica por 3
+        }
+        else
+        {
+            soma += digitos[i]; // indice par
+        }
+    }
+    int digito_verificador = (10 - (soma % 10)) % 10;
+    return digito_verificador;
+}
 
-typedef struct
-{
-    int espacamento_lateral;
-    int altura_dos_pixels;
-    char numero_codigo_de_barra[9];
-    int digitos[8];
-} ConfiguracaoCodigoBarra;
-
-typedef struct
-{
-    int todos_os_digitos[200];
-    int index_digitos;
-    int pixels_tratados[1000];
-    int index_pixels_tratados;
-} CodigoBarraDados;
-
-// adiciona os 0 do espa√ßamento lateral
 void colocar_espacamento_lateral(int espacamento_lateral, CodigoBarraDados *dados)
 {
     for (int i = 0; i < espacamento_lateral; i++)
@@ -56,7 +51,7 @@ void processar_digitos_codigo_de_barra(CodigoBarraTabela *tabela, CodigoBarraDad
     dados->todos_os_digitos[dados->index_digitos] = 1;
     dados->index_digitos++;
 
-    // Processa os 8 d√≠gitos do c√≥digo de barras
+    // Processa os 8 dÌgitos do cÛdigo de barras
     for (int i = 0; i < 8; i++)
     {
         if (i < 4)
@@ -100,62 +95,67 @@ void processar_digitos_codigo_de_barra(CodigoBarraTabela *tabela, CodigoBarraDad
 
 int main()
 {
-    // Inicializa√ß√£o das tabelas
+    setlocale(LC_ALL, "Portuguese_Brazil");
     CodigoBarraTabela tabela = {
         .Lcode = {"0001101", "0011001", "0010011", "0111101", "0100011", "0110001", "0101111", "0111011", "0110111", "0001011"},
         .Rcode = {"1110010", "1100110", "1101100", "1000010", "1011100", "1001110", "1010000", "1000100", "1001000", "1110100"}};
 
-    // Inicializa√ß√£o da configura√ß√£o
     ConfiguracaoCodigoBarra config;
     CodigoBarraDados dados = {.index_digitos = 0, .index_pixels_tratados = 0};
 
-    printf("Digite um n√∫mero: ");
+    printf("Digite um n˙mero: ");
     scanf("%8s", config.numero_codigo_de_barra);
 
     if (strlen(config.numero_codigo_de_barra) != 8)
     {
-        printf("O n√∫mero do c√≥digo de barras n√£o tem 8 d√≠gitos\n");
+        printf("O n˙mero do cÛdigo de barras n„o tem 8 dÌgitos\n");
         return 1;
     }
 
-    printf("Digite o espa√ßamento lateral: ");
+    printf("Digite o espaÁamento lateral: ");
     scanf("%d", &config.espacamento_lateral);
 
     printf("Digite a altura dos pixels: ");
     scanf("%d", &config.altura_dos_pixels);
 
-    colocar_espacamento_lateral(config.espacamento_lateral, &dados);
-
-    for (int i = 0; i < 8; i++)
-    {
-        config.digitos[i] = config.numero_codigo_de_barra[i] - '0'; // converte a string para int
-    }
-
-    processar_digitos_codigo_de_barra(&tabela, &dados, &config);
-
-    colocar_espacamento_lateral(config.espacamento_lateral, &dados);
-
-    int pixel = 3; // valor padrao
+    int pixel = 3;
     char alteracao_pixel[2];
 
-    printf("Deseja alterar o padr√£o dos pixels? (Padr√£o eh 3) y ou n : ");
+    printf("Deseja alterar o padr„o dos pixels? (Padr„o È 3) y ou n: ");
     scanf("%1s", alteracao_pixel);
     if (alteracao_pixel[0] == 'y')
     {
-        printf("Diga o padr√£o dos pixels: ");
+        printf("Diga o padr„o dos pixels: ");
         scanf("%d", &pixel);
-        if (pixel < 1) // garatir o pixel valido
+        if (pixel < 1)
         {
-            printf("O valor do padr√£o de pixels deve ser maior ou igual a 1. Usando o padr√£o 3.\n");
+            printf("O valor do padr„o de pixels deve ser maior ou igual a 1. Usando o padr„o 3.\n");
             pixel = 3;
         }
     }
 
-    printf("Valor final de pixel: %d\n", pixel);
+    for (int i = 0; i < 8; i++)
+    {
+        config.digitos[i] = config.numero_codigo_de_barra[i] - '0'; // converte a string para inteiro
+    }
 
+    int digito_verificador_calculado = calcular_digito_verificador(config.digitos);
+
+    // erifica o digito verificador
+    if (config.digitos[7] != digito_verificador_calculado)
+    {
+        printf("Erro: o dÌgito verificador informado (%d) n„o corresponde ao esperado (%d).\n",
+               config.digitos[7], digito_verificador_calculado);
+        return 1;
+    }
+
+    colocar_espacamento_lateral(config.espacamento_lateral, &dados);
+    processar_digitos_codigo_de_barra(&tabela, &dados, &config);
+    colocar_espacamento_lateral(config.espacamento_lateral, &dados);
+
+    // comeÁa a multiplicar os pixels depos do espaÁamento lateral esquerdo e antes do direito. E guardando num novo vetor
     for (int i = 0; i < dados.index_digitos; i++)
     {
-        // come√ßa a multiplicar os pixels depos do espa√ßamento lateral esquerdo e antes do direito. E guardando num novo vetor
         if (i >= (config.espacamento_lateral) && i < ((dados.index_digitos) - (config.espacamento_lateral)))
         {
             for (int j = 1; j < pixel; j++)
@@ -169,17 +169,15 @@ int main()
     }
 
     printf("Linha e altura: %d %d\n", dados.index_pixels_tratados, (config.altura_dos_pixels + (config.espacamento_lateral * 2)));
-
-    printf("D√≠gitos do c√≥digo de barras duplicado: \n");
-
+    // imprime o codigo de barra completo com todas as linhas
     for (int j = 0; j < (config.altura_dos_pixels + (config.espacamento_lateral * 2)); j++)
     {
         for (int i = 0; i < dados.index_pixels_tratados; i++)
         {
-            // faz as linhas de 0 pela quantidade do espa√ßamento lateral
+            // faz as linhas de 0 pela quantidade do espaÁamento lateral
             if (j < config.espacamento_lateral || j >= (config.altura_dos_pixels + config.espacamento_lateral))
             {
-                printf("%d", dados.pixels_tratados[i] * 0);
+                printf("%d", 0);
             }
             else
             {
