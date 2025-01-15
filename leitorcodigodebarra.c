@@ -32,7 +32,7 @@ void tirar_espacamento_lateral(CodigoBarraDados *dados, ConfiguracaoCodigoBarra 
     // com base na resolução dos pixels faço o for encrementado por ele e pego os 67 digitos originais
     for (int i = config->espacamento_lateral; i < dados->index_pixels_tratados - config->espacamento_lateral; i += config->altura_dos_pixels)
     {
-        printf("%d", dados->pixels_tratados[i]);
+        // printf("%d", dados->pixels_tratados[i]);
         dados->todos_os_digitos[dados->index_digitos] = dados->pixels_tratados[i];
         dados->index_digitos++;
     }
@@ -113,8 +113,10 @@ int main()
     CodigoBarraTabela tabela = {
         .Lcode = {"0001101", "0011001", "0010011", "0111101", "0100011", "0110001", "0101111", "0111011", "0110111", "0001011"},
         .Rcode = {"1110010", "1100110", "1101100", "1000010", "1011100", "1001110", "1010000", "1000100", "1001000", "1110100"}};
+    char nomeArquivo[256];
+    scanf("%255s", nomeArquivo);
 
-    FILE *file = fopen("codigo_de_barras.pbm", "r");
+    FILE *file = fopen(nomeArquivo, "r");
     if (!file)
     {
         perror("Erro ao abrir o arquivo");
@@ -141,41 +143,57 @@ int main()
     // pegando a linha do meio e guardando no vetor
     for (int i = 0; i < largura; i++)
     {
-        printf("%d ", pixels[meio * largura + i]);
+        // printf("%d ", pixels[meio * largura + i]);
         dados.pixels_tratados[dados.index_pixels_tratados] = pixels[meio * largura + i];
         dados.index_pixels_tratados++;
     }
 
-    printf("\n");
-    printf("%d", largura);
+    // printf("\n");
+    // printf("%d", largura);
 
+    /*
     for (int i = 0; i < dados.index_pixels_tratados; i++)
     {
         printf("%d", dados.pixels_tratados[i]);
     }
+    */
 
-    printf("\n");
+    // printf("\n");
     tirar_espacamento_lateral(&dados, &config, &quantidade_de_pixels);
     remover_marcadores(&dados);
     remover_marcador_central(&dados);
     char resultadoEmString[dados.index_digitos / 7][8];
     int tamanhoResultado;
     agrupar_em_strings(&dados, resultadoEmString, &tamanhoResultado);
-    printf("\n");
+    // printf("\n");
 
+    /*
     for (int i = 0; i < dados.index_digitos; i++)
     {
         printf("%d", dados.todos_os_digitos[i]);
     }
+    */
+    // printf("\n");
+    // printf("Espacamento lateral do codigo eh %d e a resolucao dos pixels eh %d tamanho da linha configurada %d", config.espacamento_lateral, config.altura_dos_pixels, dados.index_digitos);
+    // printf("\n");
+    //  se o codigo nao tem 56 digitos 28+28 o codigo nao é encontrado
+    if (dados.index_digitos != 56)
+    {
+        printf("O codigo nao foi encontrado.");
+        free(pixels);
+        fclose(file);
 
-    printf("\n");
-    printf("Espacamento lateral do codigo eh %d e a resolucao dos pixels eh %d tamanho da linha configurada %d", config.espacamento_lateral, config.altura_dos_pixels, dados.index_digitos);
-    printf("\n");
+        return 0;
+    }
+
+    /*
     // Imprime o resultado
     for (int i = 0; i < tamanhoResultado; i++)
     {
         printf("%s\n", resultadoEmString[i]);
     }
+    */
+
     transformar_verificador(&tabela, &config, resultadoEmString, tamanhoResultado);
 
     printf("Identificador do codigo de barras: ");

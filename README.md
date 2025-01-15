@@ -8,6 +8,7 @@ O outro programa verifica se um arquivo PBM é valido e extrai o identificador d
 
 ## 🚀 Funcionalidades
 
+- **Criação de arquivos PBM:** Cria um arquivo PBM no padrão EAN-8 contendo um código de barras.
 - **Leitura de arquivos PBM:** Valida se o arquivo é um PBM válido.
 - **Extração de identificadores:** Decodifica o código de barras e retorna o identificador encontrado.
 - **Mensagens informativas:** Informa caso o arquivo seja inválido ou não contenha um código de barras.
@@ -27,17 +28,28 @@ O outro programa verifica se um arquivo PBM é valido e extrai o identificador d
 
 ## 📖 Como usar
 
-### 1. **Compilação**
+### 1.1 **Compilação do Leitor**
 Compile o programa usando o GCC:
 ```bash
-gcc main.c -o leitor_codigo_barras
+gcc leitorcodigodebarra.c -o nomedesuaescolha
+```
+### 1.2 **Compilação da Criação do codigo de barras**
+Compile o programa usando o GCC:
+```bash
+gcc codigodebarra -o nomedesuaescolha
 ```
 
-### 2. **Execução**
-Execute o programa passando o arquivo PBM como argumento:
+### 2.1 **Execução do Leitor**
+Execute o programa, depois digite nome do arquivo PBM como argumento:
 ```bash
-./leitor_codigo_barras arquivo.pbm
+./nomedesuaescolha arquivo.pbm
 ```
+### 2.2 **Execução do Criador de código**
+Execute o programa, depois digite seus parametros para a criação do código:
+```bash
+./nomedesuaescolha
+```
+
 
 ### 3. **Comportamento**
 - Se o arquivo não for um PBM válido:
