@@ -41,6 +41,7 @@ gcc codigodebarra -o nomedesuaescolha
 
 ### 2.1 **Execução do Leitor**
 Execute o programa, depois digite nome do arquivo PBM como argumento:
+ATENÇÃO O ARQUIVO TEM QUE ESTAR NO DIRETÓRIO DO PROGRAMA.
 ```bash
 ./nomedesuaescolha arquivo.pbm
 ```
