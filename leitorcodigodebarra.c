@@ -148,6 +148,20 @@ int main()
         dados.index_pixels_tratados++;
     }
 
+    // ver se tem digitos diferentes de 0 ou 1
+    for (int i = 0; i < dados.index_pixels_tratados; i++)
+    {
+
+        if (dados.pixels_tratados[i] != 1 && dados.pixels_tratados[i] != 0)
+        {
+            printf("Codigo de barra invalido");
+            free(pixels);
+            fclose(file);
+
+            return 0;
+        }
+    }
+
     // printf("\n");
     // printf("%d", largura);
 

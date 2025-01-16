@@ -103,7 +103,7 @@ int main()
     ConfiguracaoCodigoBarra config;
     CodigoBarraDados dados = {.index_digitos = 0, .index_pixels_tratados = 0};
 
-    printf("Digite um número: ");
+    printf("Digite o codigo: ");
     scanf("%8s", config.numero_codigo_de_barra);
 
     if (strlen(config.numero_codigo_de_barra) != 8)
@@ -112,11 +112,35 @@ int main()
         return 1;
     }
 
-    printf("Digite o espaçamento lateral: ");
-    scanf("%d", &config.espacamento_lateral);
+    char alteracao_espacamento[2];
+    config.espacamento_lateral = 3;
+    printf("Deseja alterar o padrão do espacamento lateral? (Padrão é 3) y ou n: ");
+    scanf("%1s", alteracao_espacamento);
+    if (alteracao_espacamento[0] == 'y')
+    {
+        printf("Diga o espacamento lateral: ");
+        scanf("%d", &config.espacamento_lateral);
+        if (config.espacamento_lateral < 1)
+        {
+            printf("O valor do espacamento lateral deve ser maior ou igual a 1. Usando o padrão 3.\n");
+            config.espacamento_lateral = 3;
+        }
+    }
 
-    printf("Digite a altura dos pixels: ");
-    scanf("%d", &config.altura_dos_pixels);
+    char alteracao_altura[2];
+    config.altura_dos_pixels = 10;
+    printf("Deseja alterar da altura dos pixels? (Padrão é 10) y ou n: ");
+    scanf("%1s", alteracao_altura);
+    if (alteracao_altura[0] == 'y')
+    {
+        printf("Diga o espacamento lateral: ");
+        scanf("%d", &config.altura_dos_pixels);
+        if (config.espacamento_lateral < 1)
+        {
+            printf("O valor da altura dos pixels deve ser maior ou igual a 1. Usando o padrão 10.\n");
+            config.espacamento_lateral = 3;
+        }
+    }
 
     int pixel = 3;
     char alteracao_pixel[2];
@@ -168,7 +192,32 @@ int main()
         dados.index_pixels_tratados++;
     }
 
-    FILE *arquivo = fopen("codigo_de_barras.pbm", "w");
+    char nomeArquivo[256] = "codigo_de_barras.pbm";
+    char alteracao_nome[2];
+    printf("Deseja digitar o nome do arquivo?(padrao eh: codigo_de_barras.pbm ) y ou n: ");
+    scanf("%1s", alteracao_nome);
+    if (alteracao_nome[0] == 'y')
+    {
+        printf("Diga o nome do arquivo: ");
+        scanf("%255s", nomeArquivo);
+    }
+
+    // ver se o arquivo ja existe:
+    FILE *arquivo = fopen(nomeArquivo, "r");
+    if (arquivo)
+    {
+        fclose(arquivo); // fecha o arquivo que foi aberto para leitura
+        printf("O arquivo '%s' já existe. Deseja sobrescrevê-lo? (y/n): ", nomeArquivo);
+        char resposta;
+        scanf(" %c", &resposta); // O espaço antes de %c ignora caracteres pendentes no buffer
+        if (resposta == 'n' || resposta != 'y')
+        {
+            printf("Operação cancelada.\n");
+            return 0;
+        }
+    }
+
+    arquivo = fopen(nomeArquivo, "w");
     if (!arquivo)
     {
         perror("Erro ao criar o arquivo");
@@ -197,6 +246,6 @@ int main()
     }
 
     fclose(arquivo);
-    printf("Arquivo PBM gerado com sucesso: codigo_de_barras.pbm\n");
+    printf("Arquivo PBM gerado com sucesso: %s\n", nomeArquivo);
     return 0;
 }
