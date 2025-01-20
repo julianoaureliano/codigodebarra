@@ -72,9 +72,9 @@ void agrupar_em_strings(CodigoBarraDados *dados, char resultadoEmString[][8], in
         // Inicializa a string para o grupo atual
         for (int j = 0; j < 7; j++)
         {
-            resultadoEmString[i][j] = '0' + dados->todos_os_digitos[i * 7 + j]; // Converte 0 ou 1 para caractere
+            resultadoEmString[i][j] = '0' + dados->todos_os_digitos[i * 7 + j]; // converte 0 ou 1 para caractere
         }
-        resultadoEmString[i][7] = '\0'; // Termina a string com '\0'
+        resultadoEmString[i][7] = '\0'; // termina a string com '\0'
     }
 }
 // vou comparar os grupos de string que fiz com o lcode e rcode, e guardo a posição que na verdade ja é o numero
@@ -161,36 +161,39 @@ int main()
             return 0;
         }
     }
-
-    // printf("\n");
-    // printf("%d", largura);
-
     /*
-    for (int i = 0; i < dados.index_pixels_tratados; i++)
-    {
-        printf("%d", dados.pixels_tratados[i]);
-    }
-    */
+   printf("\n");
+   printf("%d", largura);
+   printf("\n");
 
-    // printf("\n");
+
+   for (int i = 0; i < dados.index_pixels_tratados; i++)
+   {
+       printf("%d", dados.pixels_tratados[i]);
+   }
+   */
+
+    printf("\n");
     tirar_espacamento_lateral(&dados, &config, &quantidade_de_pixels);
     remover_marcadores(&dados);
     remover_marcador_central(&dados);
     char resultadoEmString[dados.index_digitos / 7][8];
     int tamanhoResultado;
     agrupar_em_strings(&dados, resultadoEmString, &tamanhoResultado);
-    // printf("\n");
+    printf("\n");
 
     /*
     for (int i = 0; i < dados.index_digitos; i++)
     {
         printf("%d", dados.todos_os_digitos[i]);
     }
-    */
-    // printf("\n");
-    // printf("Espacamento lateral do codigo eh %d e a resolucao dos pixels eh %d tamanho da linha configurada %d", config.espacamento_lateral, config.altura_dos_pixels, dados.index_digitos);
-    // printf("\n");
-    //  se o codigo nao tem 56 digitos 28+28 o codigo nao é encontrado
+
+    printf("\n");
+    printf("Espacamento lateral do codigo eh %d e a resolucao dos pixels eh %d tamanho da linha configurada %d", config.espacamento_lateral, config.altura_dos_pixels, dados.index_digitos);
+    printf("\n");
+     */
+
+    // se o codigo nao tem 56 digitos 28+28 o codigo nao é encontrado
     if (dados.index_digitos != 56)
     {
         printf("O codigo nao foi encontrado.");
@@ -199,7 +202,6 @@ int main()
 
         return 0;
     }
-
     /*
     // Imprime o resultado
     for (int i = 0; i < tamanhoResultado; i++)
@@ -207,7 +209,6 @@ int main()
         printf("%s\n", resultadoEmString[i]);
     }
     */
-
     transformar_verificador(&tabela, &config, resultadoEmString, tamanhoResultado);
 
     printf("Identificador do codigo de barras: ");
@@ -218,6 +219,13 @@ int main()
     // liberando memória e fechando o arquivo
     free(pixels);
     fclose(file);
+    printf("\nDigite algo para sair do programa:");
+    char opaopa[2];
+    scanf(" %c", opaopa);
+    if (1)
+    {
+        return 0;
+    }
 
     return 0;
 }

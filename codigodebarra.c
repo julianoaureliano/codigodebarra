@@ -247,5 +247,13 @@ int main()
 
     fclose(arquivo);
     printf("Arquivo PBM gerado com sucesso: %s\n", nomeArquivo);
+    printf("Digite algo para sair do programa:\n");
+    char opaopa[2];
+    scanf(" %c", opaopa);
+    if (1)
+    {
+        return 0;
+    }
+
     return 0;
 }
